@@ -3,20 +3,23 @@ defmodule Exercise1 do
     defstruct current: 0, seen: MapSet.new([0]), calibrated: false
   end
 
-  def calibrate_simple(frequencies) when is_binary frequencies do
-    frequencies
-    |> String.split("\n", trim: true)
-    |> Enum.map(&Integer.parse/1)
-    |> Enum.map(&(elem(&1, 0)))
+  def calibrate_simple(readings) when is_binary readings do
+    readings
+    |> parse
     |> Enum.sum
   end
 
-  def calibrate(frequencies) when is_binary frequencies do
-    frequencies
+  def calibrate(readings) when is_binary readings do
+    readings
+    |> parse
+    |> do_calibrate
+  end
+
+  defp parse(readings) do
+    readings
     |> String.split("\n", trim: true)
     |> Enum.map(&Integer.parse/1)
     |> Enum.map(&(elem(&1, 0)))
-    |> do_calibrate
   end
 
   defp do_calibrate(_, acc \\ %Accumulator{})
