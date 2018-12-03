@@ -6,13 +6,11 @@ defmodule Day2Part2 do
     |> Enum.map(&zip_letters/1)
     |> Enum.find(&differs_by_single_letter?/1)
     |> Enum.reject(&differing_letters/1)
-    |> Enum.map(&unify_letter_pair/1)
+    |> Enum.map(&unify_letter_pairs/1)
     |> List.to_string
   end
 
   defp parse_ids(input), do: String.split(input, "\n", trim: true)
-
-  defp not_equal(left, right), do: left !== right
 
   defp create_all_combinations(ids) do
     ids
@@ -22,7 +20,7 @@ defmodule Day2Part2 do
 
   defp combinize([]), do: []
 
-  defp combinize(ids = [left|tail]) do
+  defp combinize([left|tail]) do
     [
       combinize(tail) | Enum.map(tail, fn right ->
         { String.graphemes(left), String.graphemes(right) }
@@ -45,8 +43,7 @@ defmodule Day2Part2 do
   end
 
   defp differing_letters({ left, right}), do: left != right
-  defp unify_letter_pair({left, _}), do: left
-
+  defp unify_letter_pairs({left, _}), do: left
 end
 
 ExUnit.start()
