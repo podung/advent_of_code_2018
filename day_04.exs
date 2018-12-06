@@ -5,14 +5,18 @@ defmodule Day4 do
     input
   end
 
+  def spy(input) do
+    input |> tap(&(IO.inspect &1))
+  end
+
   def sleepy_guard(input) do
     input
     |> split_lines
     |> sort_by_date
-    |> tap(&(IO.inspect &1))
+    |> spy
     |> Enum.map(&strip_date_and_hour_part/1)
     |> Enum.map(&parse_minutes_and_action/1)
-    |> tap(&(IO.inspect &1))
+    |> spy
     |> Enum.chunk_while({}, &process_sleep_records/2, fn acc ->
          IO.puts "in final thing"
          IO.inspect(acc)
