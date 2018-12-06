@@ -20,19 +20,19 @@ defmodule Day4 do
     Enum.sort(entries)
   end
 
-  defp strip_date_and_hour_part(<<date_and_hour_part::binary-size(15)>>
+  defp strip_date_and_hour_part(<<_date_and_hour_part::binary-size(15)>>
                                 <> rest), do: rest
 
   defp parse_minutes_and_action(<<minutes::binary-size(2)>>
                                 <> "] "
                                 <> action), do: { String.to_integer(minutes), action }
 
-  defp process_sleep_records({ minute, "Guard #" <> rest }, acc = {}) do
+  defp process_sleep_records({ _minute, "Guard #" <> rest }, {}) do
     { guard, _ } = Integer.parse(rest)
     { :cont, { guard, [] } }
   end
 
-  defp process_sleep_records({ minute, "Guard #" <> rest }, prev_accumulator) do
+  defp process_sleep_records({ _minute, "Guard #" <> rest }, prev_accumulator) do
     { guard, _ } = Integer.parse(rest)
     { :cont, prev_accumulator, { guard, [] } }
   end
@@ -41,7 +41,7 @@ defmodule Day4 do
     { :cont, { guard, minutes_map, minute_fell_asleep} }
   end
 
-  defp process_sleep_records({ minute_awoke, action}, { guard, minutes_map, minute_fell_asleep }) do
+  defp process_sleep_records({ minute_awoke, _action}, { guard, minutes_map, minute_fell_asleep }) do
     nap_time = Enum.to_list(minute_fell_asleep..minute_awoke - 1)
 
     { :cont, { guard, List.flatten([ nap_time | minutes_map ]) } }
@@ -102,10 +102,10 @@ defmodule Day4Test do
                           """) == 240
     end
 
-    #test "overlapping for given for problem" do
-      #sleep_schedule = File.read! "fixtures/day_04_sleepschedules.txt"
+    test "overlapping for given for problem" do
+      sleep_schedule = File.read! "fixtures/day_04_sleepschedules.txt"
 
-      #assert sleepy_guard(sleep_schedule) == 113716
-    #end
+      assert sleepy_guard(sleep_schedule) == 72925
+    end
   end
 end
