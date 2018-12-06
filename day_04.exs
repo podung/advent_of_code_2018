@@ -19,6 +19,7 @@ defmodule Day4 do
          # TODO: what the heck does this thing do???? - how does it use final emtpy list???
          { :cont, acc, [] }
        end)
+    |> Enum.reduce(%{}, &countMinutesPerGuard/2)
   end
 
   defp split_lines(input), do: String.split(input, "\n", trim: true)
@@ -39,9 +40,9 @@ defmodule Day4 do
     { :cont, { guard, [] } }
   end
 
-  defp process_sleep_records({ minute, "Guard #" <> rest }, accumulator) do
+  defp process_sleep_records({ minute, "Guard #" <> rest }, prev_accumulator) do
     { guard, _ } = Integer.parse(rest)
-    { :cont, accumulator, { guard, [] } }
+    { :cont, prev_accumulator, { guard, [] } }
   end
 
   defp process_sleep_records({ minute_fell_asleep, "falls asleep"}, { guard, minutes_map }) do
@@ -49,9 +50,21 @@ defmodule Day4 do
   end
 
   defp process_sleep_records({ minute_awoke, action}, { guard, minutes_map, minute_fell_asleep }) do
-    nap_time = Enum.to_list((minute_awoke - 1)..minute_fell_asleep)
+    nap_time = Enum.to_list(minute_fell_asleep..minute_awoke - 1)
 
     { :cont, { guard, List.flatten([ nap_time | minutes_map ]) } }
+  end
+
+  defp countMinutesPerGuard({ guard, minutes }, guardMap) do
+    minutesMapFor = Map.put_new(guardMap, guard, %{})
+    mapForGuard = minutesMapFor[guard]
+
+
+    newMap = Enum.reduce(minutes, mapForGuard, fn minute, acc ->
+               Map.update(acc, minute, 1, &(&1 + 1))
+             end)
+
+    Map.put(minutesMapFor, guard, newMap)
   end
 end
 
