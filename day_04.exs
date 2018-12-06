@@ -1,29 +1,17 @@
 defmodule Day4 do
 
-  def tap(input, func) do
-    func.(input)
-    input
-  end
-
-  def spy(input) do
-    input |> tap(&(IO.inspect &1))
-  end
-
   def sleepy_guard(input) do
     input
     |> split_lines
     |> sort_by_date
-    |> spy
     |> Enum.map(&strip_date_and_hour_part/1)
     |> Enum.map(&parse_minutes_and_action/1)
-    |> spy
     |> Enum.chunk_while({}, &process_sleep_records/2, fn acc ->
-         IO.puts "in final thing"
-         IO.inspect(acc)
-         # TODO: what the heck does this thing do???? - how does it use final emtpy list???
          { :cont, acc, [] }
        end)
     |> Enum.reduce(%{}, &countMinutesPerGuard/2)
+    |> sleepiest
+    |> calc
   end
 
   defp split_lines(input), do: String.split(input, "\n", trim: true)
@@ -70,6 +58,18 @@ defmodule Day4 do
 
     Map.put(minutesMapFor, guard, newMap)
   end
+
+  defp total_minutes_asleep({ _, minutesMap } ) do
+    minutesMap
+    |> Map.values
+    |> Enum.sum
+  end
+
+  defp sleepiest(guards), do: Enum.max_by(guards, &total_minutes_asleep/1)
+
+  defp tiredest_minute(minutes), do: minutes |> Enum.max_by(fn {_,cnt} -> cnt end) |> elem(0)
+
+  defp calc({ guard_number, minutes }), do: guard_number * tiredest_minute(minutes)
 end
 
 ExUnit.start()
@@ -99,7 +99,7 @@ defmodule Day4Test do
                           [1518-11-01 00:05] falls asleep
                           [1518-11-03 00:24] falls asleep
                           [1518-11-03 00:29] wakes up
-                          """) == 5
+                          """) == 240
     end
 
     #test "overlapping for given for problem" do
