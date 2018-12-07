@@ -2,6 +2,21 @@ defmodule Day4 do
 
   def sleepy_guard(input) do
     input
+    |> process_sleep_records
+    |> sleepiest
+    |> calc
+  end
+
+  def sleepiest_minute_guard(input) do
+    input
+    |> process_sleep_records
+    |> calculate_sleepiest_minute_per_guard
+    |> sleepiest_on_single_minute
+    |> multiply
+  end
+
+  defp process_sleep_records(input) do
+    input
     |> split_lines
     |> sort_by_date
     |> Enum.map(&strip_date_and_hour_part/1)
@@ -10,8 +25,6 @@ defmodule Day4 do
          { :cont, acc, [] }
        end)
     |> Enum.reduce(%{}, &countMinutesPerGuard/2)
-    |> sleepiest
-    |> calc
   end
 
   defp split_lines(input), do: String.split(input, "\n", trim: true)
@@ -67,9 +80,26 @@ defmodule Day4 do
 
   defp sleepiest(guards), do: Enum.max_by(guards, &total_minutes_asleep/1)
 
-  defp tiredest_minute(minutes), do: minutes |> Enum.max_by(fn {_,cnt} -> cnt end) |> elem(0)
+  defp tiredest_minute(minutes), do: minutes |> Enum.max_by(fn {_,cnt} -> cnt end, fn -> { 0, 0 } end)
 
-  defp calc({ guard_number, minutes }), do: guard_number * tiredest_minute(minutes)
+  defp tiredest_minute_value({ minute, _count }), do: minute
+  defp tiredest_minute_count({ _minute, count }), do: count
+
+  defp calc({ guard_number, minutes }) do
+    minute = minutes |> tiredest_minute |> tiredest_minute_value
+    guard_number * minute
+  end
+
+  defp calculate_sleepiest_minute_per_guard(guards) do
+    Enum.map(guards, fn { guard, minutes } ->
+      tiredest = tiredest_minute(minutes)
+      { guard, tiredest_minute_value(tiredest), tiredest_minute_count(tiredest) }
+    end)
+  end
+
+  defp sleepiest_on_single_minute(guards), do: Enum.max_by(guards, fn { _guard, _minute, count } -> count end)
+
+  defp multiply({ guard, minute, _count }), do: guard * minute
 end
 
 ExUnit.start()
@@ -79,7 +109,7 @@ defmodule Day4Test do
 
   import Day4
 
-  describe "find_hours" do
+  describe "sleepiest" do
     test "overlap example scenarios" do
       assert sleepy_guard("""
                           [1518-11-01 00:30] falls asleep
@@ -106,6 +136,36 @@ defmodule Day4Test do
       sleep_schedule = File.read! "fixtures/day_04_sleepschedules.txt"
 
       assert sleepy_guard(sleep_schedule) == 72925
+    end
+  end
+
+  describe "sleepiest_minute_guard" do
+    test "sleepiest minute example scenarios" do
+      assert sleepiest_minute_guard("""
+                          [1518-11-01 00:30] falls asleep
+                          [1518-11-01 00:55] wakes up
+                          [1518-11-01 00:00] Guard #10 begins shift
+                          [1518-11-01 00:25] wakes up
+                          [1518-11-05 00:55] wakes up
+                          [1518-11-01 23:58] Guard #99 begins shift
+                          [1518-11-02 00:40] falls asleep
+                          [1518-11-02 00:50] wakes up
+                          [1518-11-03 00:05] Guard #10 begins shift
+                          [1518-11-04 00:02] Guard #99 begins shift
+                          [1518-11-04 00:46] wakes up
+                          [1518-11-05 00:03] Guard #99 begins shift
+                          [1518-11-05 00:45] falls asleep
+                          [1518-11-04 00:36] falls asleep
+                          [1518-11-01 00:05] falls asleep
+                          [1518-11-03 00:24] falls asleep
+                          [1518-11-03 00:29] wakes up
+                          """) == 4455
+    end
+
+    test "sleepiest minute for given for problem" do
+      sleep_schedule = File.read! "fixtures/day_04_sleepschedules.txt"
+
+      assert sleepiest_minute_guard(sleep_schedule) == 49137
     end
   end
 end
