@@ -9,12 +9,11 @@ defmodule Day5 do
   end
 
   defp do_trigger([a], seen), do: Enum.reverse([a | seen])
+  defp do_trigger([a,b | tail], seen) when abs(a - b) == 32 do
+    rewind_by_one(tail, seen)
+  end
   defp do_trigger([a,b | tail], seen) do
-    if abs(a - b) == 32 do
-      rewind_by_one(tail, seen)
-    else
-      do_trigger([b | tail], [ a | seen ])
-    end
+    do_trigger([b | tail], [ a | seen ])
   end
 
   defp rewind_by_one(tail, [ last_seen | seen_tail ]) do
