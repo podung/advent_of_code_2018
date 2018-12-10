@@ -2,6 +2,7 @@ defmodule Day5 do
 
   def trigger(polymer) do
     polymer
+    |> String.trim
     |> to_charlist
     |> do_trigger([])
     |> to_string
@@ -43,13 +44,13 @@ defmodule Day5Test do
     test "test data for problem" do
       polymer = File.read! "fixtures/day_05_polymer.txt"
 
-      assert trigger(polymer) == File.read!("fixtures/day_05_expected.txt")
+      assert trigger(polymer) == File.read!("fixtures/day_05_expected.txt") |> String.trim
     end
 
     test "length answer" do
       polymer = File.read! "fixtures/day_05_polymer.txt"
 
-      assert trigger(polymer) |> String.length == 9061
+      assert trigger(polymer) |> String.length == 9060
     end
   end
 end
