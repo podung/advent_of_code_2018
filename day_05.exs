@@ -1,21 +1,25 @@
 defmodule Day5 do
 
   def trigger(polymer) do
-    polymer |> to_charlist |> do_trigger |> to_string
+    polymer
+    |> to_charlist
+    |> do_trigger([])
+    |> to_string
   end
 
-  defp do_trigger([]), do: []
-
-  defp do_trigger([left | left_tail]) do
-
-    case do_trigger(left_tail) do
-      [ right | right_tail ] ->
-        if abs(left - right) == 32 do
-          do_trigger(right_tail)
-        else
-          [ left | do_trigger([right | right_tail]) ]
-        end
-      [] -> [ left | left_tail ]
+  defp do_trigger([a], seen), do: Enum.reverse([a | seen])
+  defp do_trigger([a,b | tail], seen = [ last_seen | seen_tail ]) do
+    if abs(a - b) == 32 do
+      do_trigger([ last_seen | tail], seen_tail)
+    else
+      do_trigger([b | tail], [ a | seen ])
+    end
+  end
+  defp do_trigger([a,b | tail], seen = []) do
+    if abs(a - b) == 32 do
+      do_trigger(tail, seen)
+    else
+      do_trigger([ b | tail], [ a | seen])
     end
   end
 end
@@ -32,10 +36,20 @@ defmodule Day5Test do
       assert trigger("dabAcCaCBAcCcaDA") == "dabCBAcaDA"
     end
 
-    #test "test data for problem" do
-      #polymer = File.read! "fixtures/day_05_polymer.txt"
+    test "examples length" do
+      assert trigger("dabAcCaCBAcCcaDA") |> String.length == 10
+    end
 
-      #assert trigger(polymer) == "lkjsf"
-    #end
+    test "test data for problem" do
+      polymer = File.read! "fixtures/day_05_polymer.txt"
+
+      assert trigger(polymer) == File.read!("fixtures/day_05_expected.txt")
+    end
+
+    test "length answer" do
+      polymer = File.read! "fixtures/day_05_polymer.txt"
+
+      assert trigger(polymer) |> String.length == 9061
+    end
   end
 end
