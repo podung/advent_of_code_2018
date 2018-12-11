@@ -3,26 +3,18 @@ defmodule Day5 do
   def trigger(polymer) do
     polymer
     |> String.trim
-    |> to_charlist
-    |> do_trigger([])
+    |> String.to_charlist
+    |> Enum.reduce([], &react/2)
+    |> Enum.reverse
     |> to_string
   end
 
-  defp do_trigger([a], seen), do: Enum.reverse([a | seen])
-  defp do_trigger([a,b | tail], seen) when abs(a - b) == 32 do
-    rewind_by_one(tail, seen)
-  end
-  defp do_trigger([a,b | tail], seen) do
-    do_trigger([b | tail], [ a | seen ])
-  end
+  defp react(current, []), do: [current]
 
-  defp rewind_by_one(tail, [ last_seen | seen_tail ]) do
-    do_trigger([ last_seen | tail ], seen_tail)
-  end
+  defp react(current, [last | processed_tail])
+    when abs(current - last) == 32, do: processed_tail
 
-  defp rewind_by_one(tail, []) do
-    do_trigger(tail, [])
-  end
+  defp react(current, processed), do: [ current | processed ]
 end
 
 ExUnit.start()
