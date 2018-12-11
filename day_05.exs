@@ -3,18 +3,23 @@ defmodule Day5 do
   def trigger(polymer) do
     polymer
     |> String.trim
-    |> String.to_charlist
+    |> String.codepoints
     |> Enum.reduce([], &react/2)
     |> Enum.reverse
-    |> to_string
+    |> Enum.join
   end
 
   defp react(current, []), do: [current]
 
-  defp react(current, [last | processed_tail])
-    when abs(current - last) == 32, do: processed_tail
+  defp react(current, [last | tail]) do
+    if !should_throw_out(current, last),
+      do: [ current, last | tail],
+      else: tail
+  end
 
-  defp react(current, processed), do: [ current | processed ]
+  defp should_throw_out(current, last) do
+    current != last && String.upcase(current) == String.upcase(last)
+  end
 end
 
 ExUnit.start()
