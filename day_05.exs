@@ -14,9 +14,7 @@ defmodule Day5 do
     |> String.trim
     |> String.codepoints
     |> Enum.reduce({ [], %{} }, &react_test/2)
-    |> elem(1)
-    |> Enum.min_by(&polymer_length/1)
-    |> elem(1)
+    |> select_shortest_polymer
     |> Enum.reverse
     |> Enum.join
   end
@@ -24,14 +22,14 @@ defmodule Day5 do
   defp react_test(current, { full, candidates } ) do
     candidates = candidates
                  |> Map.put_new(String.upcase(current), full)
-                 |> Enum.map(&(map_it(current, &1)))
+                 |> Enum.map(&(filter_or_react(current, &1)))
                  |> Enum.into(%{})
 
 
     { react(current, full), candidates }
   end
 
-  defp map_it(current, { key, value }) do
+  defp filter_or_react(current, { key, value }) do
     if String.upcase(current) == key do
       { key, value }
     else
@@ -39,7 +37,11 @@ defmodule Day5 do
     end
   end
 
-  defp polymer_length({ _key, polymer }), do: length(polymer)
+  defp select_shortest_polymer({ _full, shortest_candidates}) do
+    shortest_candidates
+    |> Enum.min_by(fn { _key, polymer } -> length(polymer) end)
+    |> elem(1)
+  end
 
   defp react(current, []), do: [current]
 
