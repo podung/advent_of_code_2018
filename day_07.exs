@@ -8,6 +8,14 @@ defmodule Day7 do
 
   defp split_lines(input), do: String.split(input, "\n", trim: true)
 
+  defp parse_step_dependency("Step "
+                             <> <<dependency::binary-size(1)>>
+                             <> " must be finished before step "
+                             <> <<step::binary-size(1)>>
+                             <> " can begin.") do
+    { dependency, step }
+  end
+
   defp map_dependencies(lines) do
     Enum.reduce(lines, %{}, fn line, dependency_map ->
       { dependency, step } = parse_step_dependency(line)
@@ -17,14 +25,6 @@ defmodule Day7 do
       |> ensure_step_exists(step)
       |> add_dependency(step, dependency)
     end)
-  end
-
-  defp parse_step_dependency("Step "
-                             <> <<dependency::binary-size(1)>>
-                             <> " must be finished before step "
-                             <> <<step::binary-size(1)>>
-                             <> " can begin.") do
-    { dependency, step }
   end
 
   defp ensure_step_exists(dependency_map, step) do
