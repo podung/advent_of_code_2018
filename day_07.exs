@@ -3,7 +3,7 @@ defmodule Day7 do
     input
     |> split_lines
     |> map_dependencies
-    |> determine_order
+    |> determine_order([])
   end
 
   defp split_lines(input), do: String.split(input, "\n", trim: true)
@@ -36,8 +36,6 @@ defmodule Day7 do
       MapSet.put(dependenciesForStep, dependency)
     end)
   end
-
-  defp determine_order(dependency_map), do: determine_order(dependency_map, [])
 
   defp determine_order(remaining, ordered_steps) when remaining == %{} do
     ordered_steps
